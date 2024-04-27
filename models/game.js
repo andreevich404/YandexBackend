@@ -1,16 +1,16 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const userModel = require('./user');
-const categoryModel = require('./category');
+const userModel = require('./user')
+const categoryModel = require('./category')
 
 const gameSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: true
   },
   description: {
     type: String,
-    required: true,
+    required: true
   },
   developer: {
     type: String,
@@ -26,12 +26,12 @@ const gameSchema = new mongoose.Schema({
   },
   users: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: userModel,
+    ref: userModel
   }],
   categories: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: categoryModel,
-  }],
-});
+    ref: categoryModel
+  }]
+})
 
-module.exports = mongoose.model('game', gameSchema);
+module.exports = mongoose.model('game', gameSchema)
