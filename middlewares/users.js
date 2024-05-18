@@ -7,7 +7,6 @@ const findAllUsers = async (req, res, next) => {
 }
 
 const createUser = async (req, res, next) => {
-  console.log('POST /users')
   try {
     console.log(req.body)
     req.user = await user.create(req.body)

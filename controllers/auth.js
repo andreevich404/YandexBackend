@@ -8,26 +8,11 @@ const login = (req, res) => {
   user
     .findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
-        expiresIn: 3600
-      })
-      return { user, token }
-    })
-    .then(({ user, token }) => {
-      res.status(200).send({
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        jwt: token
-      })
-    })
-    .then((user) => {
-      res
-        .status(200)
-        .send({ _id: user._id, username: user.username, email: user.email })
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: 3600 })
+      res.status(200).send({ _id: user._id, username: user.username, email: user.email, jwt: token })
     })
     .catch((error) => {
-      res.status(401).send({ message: error.message })
+      res.status(401).send(JSON.stringify({ message: error.message }))
     })
 }
 
@@ -47,12 +32,4 @@ const sendDashboard = (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin/dashboard.html'))
 }
 
-const checkCookiesJWT = (req, res, next) => {
-  if (!req.cookies.jwt) {
-    return res.redirect('/')
-  }
-  req.headers.authorization = `Bearer ${req.cookies.jwt}`
-  next()
-}
-
-module.exports = { login, sendIndex, sendDashboard, checkCookiesJWT }
+module.exports = { login, sendIndex, sendDashboard }

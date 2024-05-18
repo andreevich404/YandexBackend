@@ -63,7 +63,6 @@ const findGameById = async (req, res, next) => {
 }
 
 const findAllGames = async (req, res, next) => {
-  console.log('GET /games')
   if (req.query['categories.name']) {
     req.gamesArray = await games.findGameByCategory(req.query['categories.name'])
     next()
@@ -80,9 +79,7 @@ const findAllGames = async (req, res, next) => {
 }
 
 const createGame = async (req, res, next) => {
-  console.log('POST /games')
   try {
-    console.log(req.body)
     req.game = await games.create(req.body)
     next()
   } catch (error) {
@@ -112,6 +109,10 @@ const deleteGame = async (req, res, next) => {
 }
 
 const checkEmptyFields = async (req, res, next) => {
+  if (req.isVoteRequest) {
+    next()
+    return
+  }
   if (
     !req.body.title ||
     !req.body.description ||
