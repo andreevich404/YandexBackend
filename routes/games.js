@@ -1,9 +1,13 @@
-const gamesRouter = require("express").Router();
-const { getAllGames, checkIsTitleInArray, updateGamesArray, updateGamesFile, findGameById, deleteGame } = require("../middlewares/games");
-const { sendAllGames, sendUpdatedGames } = require("../controllers/games");
+const gamesRouter = require('express').Router()
 
-gamesRouter.get("/games", getAllGames, sendAllGames);
-gamesRouter.post("/games", getAllGames, checkIsTitleInArray, updateGamesArray, updateGamesFile, sendUpdatedGames);
-gamesRouter.delete("/games/:id", getAllGames, findGameById, deleteGame, updateGamesFile, sendUpdatedGames);
+const { findAllGames, createGame, findGameById, updateGame, deleteGame, checkEmptyFields, checkIfUsersAreSafe, checkIfCategoriesAvaliable, checkIsGameExists, checkIsVoteRequest } = require('../middlewares/games')
+const { sendAllGames, sendGameCreated, sendGameById, sendGameUpdated, sendGameDeleted } = require('../controllers/games')
+const { checkAuth } = require('../middlewares/auth.js')
 
-module.exports = gamesRouter;
+gamesRouter.get('/games', findAllGames, sendAllGames)
+gamesRouter.get('/games/:id', findGameById, sendGameById)
+gamesRouter.post('/games', findAllGames, checkIsGameExists, checkIfCategoriesAvaliable, checkEmptyFields, checkAuth, createGame, sendGameCreated)
+gamesRouter.put('/games/:id', findGameById, checkIsVoteRequest, checkIfUsersAreSafe, checkIfCategoriesAvaliable, checkEmptyFields, checkAuth, updateGame, sendGameUpdated)
+gamesRouter.delete('/games/:id', checkAuth, deleteGame, sendGameDeleted)
+
+module.exports = gamesRouter
