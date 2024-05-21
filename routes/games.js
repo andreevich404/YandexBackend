@@ -5,9 +5,27 @@ const { sendAllGames, sendGameCreated, sendGameById, sendGameUpdated, sendGameDe
 const { checkAuth } = require('../middlewares/auth.js')
 
 gamesRouter.get('/games', findAllGames, sendAllGames)
+gamesRouter.post(
+  '/games',
+  checkAuth,
+  findAllGames,
+  checkEmptyFields,
+  checkIfCategoriesAvaliable,
+  checkIsGameExists,
+  createGame,
+  sendGameCreated
+)
 gamesRouter.get('/games/:id', findGameById, sendGameById)
-gamesRouter.post('/games', findAllGames, checkIsGameExists, checkIfCategoriesAvaliable, checkEmptyFields, checkAuth, createGame, sendGameCreated)
-gamesRouter.put('/games/:id', findGameById, checkIsVoteRequest, checkIfUsersAreSafe, checkIfCategoriesAvaliable, checkEmptyFields, checkAuth, updateGame, sendGameUpdated)
+gamesRouter.put(
+  '/games/:id',
+  checkAuth,
+  findGameById,
+  checkIsVoteRequest,
+  checkIfUsersAreSafe,
+  checkIfCategoriesAvaliable,
+  checkEmptyFields,
+  updateGame,
+  sendGameUpdated
+)
 gamesRouter.delete('/games/:id', checkAuth, deleteGame, sendGameDeleted)
-
 module.exports = gamesRouter

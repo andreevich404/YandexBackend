@@ -5,9 +5,23 @@ const { sendAllCategories, sendCategoryCreated, sendCategoryById, sendCategoryUp
 const { checkAuth } = require('../middlewares/auth.js')
 
 categoriesRouter.get('/categories', findAllCategories, sendAllCategories)
+categoriesRouter.post(
+  '/categories',
+  checkAuth,
+  findAllCategories,
+  checkIsCategoryExists,
+  checkEmptyName,
+  createCategory,
+  sendCategoryCreated
+)
 categoriesRouter.get('/categories/:id', findCategoryById, sendCategoryById)
-categoriesRouter.post('/categories', findAllCategories, checkIsCategoryExists, checkEmptyName, checkAuth, createCategory, sendCategoryCreated)
-categoriesRouter.put('/categories/:id', checkEmptyName, checkAuth, updateCategory, sendCategoryUpdated)
+categoriesRouter.put(
+  '/categories/:id',
+  checkAuth,
+  findCategoryById,
+  checkEmptyName,
+  updateCategory,
+  sendCategoryUpdated
+)
 categoriesRouter.delete('/categories/:id', checkAuth, deleteCategory, sendCategoryDeleted)
-
 module.exports = categoriesRouter
