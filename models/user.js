@@ -8,8 +8,8 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
-    unique: true
+    unique: true,
+    required: true
   },
   password: {
     type: String,
@@ -26,7 +26,6 @@ userSchema.statics.findUserByCredentials = function (email, password) {
       if (!matched) {
         return Promise.reject(new Error('Неправильные почта или пароль'))
       }
-
       return user
     })
   })

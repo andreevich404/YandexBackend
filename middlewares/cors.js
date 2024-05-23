@@ -2,6 +2,7 @@ const allowedCors = [
   'https://practicum.yandex.ru',
   'https://students-projects.ru',
   'https://andreevich404.nomoredomainswork.ru',
+  'https://api.andreevich404.nomoredomainswork.ru',
   'localhost:3000',
   'localhost:3001'
 ]
@@ -16,4 +17,4 @@ function cors (req, res, next) {
   next()
 }
 
-module.exports = { cors }
+module.exports = cors

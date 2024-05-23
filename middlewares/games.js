@@ -1,52 +1,17 @@
 const games = require('../models/game')
-const { readData, writeData } = require('../utils/data')
 
-const getAllGames = async (req, res, next) => {
-  const games = await readData('./data/games.json')
-  if (!games) {
-    res.status(400)
-    res.send({
-      status: 'error',
-      message: 'Нет игр в базе данных. Добавь игру.'
-    })
+const findAllGames = async (req, res, next) => {
+  if (req.query['categories.name']) {
+    req.gamesArray = await games.findGameByCategory(
+      req.query['categories.name']
+    )
+    next()
     return
   }
-  req.games = games
-  next()
-}
-
-const checkIsTitleInArray = (req, res, next) => {
-  req.isNew = !req.games.find((item) => item.title === req.body.title)
-  next()
-}
-
-const updateGamesArray = (req, res, next) => {
-  if (req.isNew) {
-    const inArray = req.games.map((item) => Number(item.id))
-    let maximalId
-    if (inArray.length > 0) {
-      maximalId = Math.max(...inArray)
-    } else {
-      maximalId = 0
-    }
-
-    req.updatedObject = {
-      id: maximalId + 1,
-      title: req.body.title,
-      image: req.body.image,
-      link: req.body.link,
-      description: req.body.description
-    }
-    req.games = [...req.games, req.updatedObject]
-    next()
-  } else {
-    res.status(400)
-    res.send({ status: 'error', message: 'Игра с таким именем уже есть.' })
-  }
-}
-
-const updateGamesFile = async (req, res, next) => {
-  await writeData('./data/games.json', req.games)
+  req.gamesArray = await games.find({}).populate('categories').populate({
+    path: 'users',
+    select: '-password'
+  })
   next()
 }
 
@@ -55,27 +20,15 @@ const findGameById = async (req, res, next) => {
     req.game = await games
       .findById(req.params.id)
       .populate('categories')
-      .populate('user')
+      .populate({
+        path: 'users',
+        select: '-password'
+      })
     next()
   } catch (error) {
-    res.status(404).send({ message: 'Игра не найдена' })
+    res.setHeader('Content-Type', 'application/json')
+    res.status(404).send(JSON.stringify({ message: 'Игра не найдена' }))
   }
-}
-
-const findAllGames = async (req, res, next) => {
-  if (req.query['categories.name']) {
-    req.gamesArray = await games.findGameByCategory(req.query['categories.name'])
-    next()
-    return
-  }
-  req.gamesArray = await games
-    .find({})
-    .populate('categories')
-    .populate({
-      path: 'user',
-      select: '-password'
-    })
-  next()
 }
 
 const createGame = async (req, res, next) => {
@@ -113,6 +66,7 @@ const checkEmptyFields = async (req, res, next) => {
     next()
     return
   }
+
   if (
     !req.body.title ||
     !req.body.description ||
@@ -121,13 +75,18 @@ const checkEmptyFields = async (req, res, next) => {
     !req.body.developer
   ) {
     res.setHeader('Content-Type', 'application/json')
-    res.status(400).send(JSON.stringify({ message: 'Заполните все поля' }))
+    res.status(400).send(JSON.stringify({ message: 'Заполни все поля' }))
   } else {
     next()
   }
 }
 
 const checkIfCategoriesAvaliable = async (req, res, next) => {
+  if (req.isVoteRequest) {
+    next()
+    return
+  }
+
   if (!req.body.categories || req.body.categories.length === 0) {
     res.setHeader('Content-Type', 'application/json')
     res
@@ -147,14 +106,12 @@ const checkIfUsersAreSafe = async (req, res, next) => {
     next()
   } else {
     res.setHeader('Content-Type', 'application/json')
-    res
-      .status(400)
-      .send(
-        JSON.stringify({
-          message:
-            'Нельзя удалять пользователей или добавлять больше одного пользователя'
-        })
-      )
+    res.status(400).send(
+      JSON.stringify({
+        message:
+          'Нельзя удалять пользователей или добавлять больше одного пользователя'
+      })
+    )
   }
 }
 
@@ -164,11 +121,11 @@ const checkIsGameExists = async (req, res, next) => {
   })
   if (isInArray) {
     res.setHeader('Content-Type', 'application/json')
-    res
-      .status(400)
-      .send(
-        JSON.stringify({ message: 'Игра с таким названием уже существует' })
-      )
+    res.status(400).send(
+      JSON.stringify({
+        message: 'Игра с таким названием уже существует'
+      })
+    )
   } else {
     next()
   }
@@ -182,15 +139,11 @@ const checkIsVoteRequest = async (req, res, next) => {
 }
 
 module.exports = {
-  getAllGames,
-  checkIsTitleInArray,
-  updateGamesArray,
-  updateGamesFile,
-  findGameById,
-  deleteGame,
   findAllGames,
   createGame,
+  findGameById,
   updateGame,
+  deleteGame,
   checkEmptyFields,
   checkIfCategoriesAvaliable,
   checkIfUsersAreSafe,
